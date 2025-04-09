@@ -12,12 +12,13 @@ import {
   NodeChange,
 } from '@xyflow/react'
 import { v4 as uuidv4 } from 'uuid'
-import { NodeType } from '@/constants'
+import { NodeOrderType, NodeType } from '@/constants'
+import { checkIfConnectionValid } from './helpers'
 
 export interface WorkflowNode extends Node {
   data: {
     label: string
-    type: NodeType
+    type: NodeOrderType
   }
 }
 
@@ -41,7 +42,7 @@ type Action =
 export interface WorkflowNode extends Node {
   data: {
     label: string
-    type: NodeType
+    type: NodeOrderType
   }
 }
 
@@ -50,18 +51,18 @@ const initialNodes: WorkflowNode[] = [
     id: '1',
     type: 'input',
     position: { x: 250, y: 0 },
-    data: { label: 'Start Node', type: NodeType.Start },
+    data: { label: 'Start Node', type: NodeOrderType.Start },
   },
   {
     id: '2',
     position: { x: 250, y: 150 },
-    data: { label: 'Middle Node', type: NodeType.Middle },
+    data: { label: 'Middle Node', type: NodeOrderType.Middle },
   },
   {
     id: '3',
     type: 'output',
     position: { x: 250, y: 300 },
-    data: { label: 'End Node', type: NodeType.End },
+    data: { label: 'End Node', type: NodeOrderType.End },
   },
 ]
 
@@ -102,7 +103,18 @@ function reducer(state: WorkflowState, action: Action): WorkflowState {
   }
 }
 
-export const useWorkflow = () => {
+function getFlowNodeOrderType(order: NodeOrderType): NodeType | undefined {
+  const nodeTypeMap: Record<NodeOrderType, NodeType | undefined> = {
+    [NodeOrderType.Start]: NodeType.Input,
+    [NodeOrderType.Middle]: undefined,
+    [NodeOrderType.End]: NodeType.Output,
+  }
+
+  return nodeTypeMap[order]
+}
+
+// This hook is not exported and placed here to prevent improper usage outside of context
+const useWorkflow = () => {
   const [state, dispatch] = useReducer(
     reducer,
     {
@@ -135,17 +147,30 @@ export const useWorkflow = () => {
 
   const connectEdge = useCallback(
     (connection: Connection) => {
-      dispatch({
-        type: 'SET_EDGES',
-        payload: addEdge(connection, state.edges),
-      })
+      const { source, target } = connection
+
+      const sourceNode = state.nodes.find((n) => n.id === source)
+      const targetNode = state.nodes.find((n) => n.id === target)
+
+      if (!sourceNode || !targetNode) return
+
+      const isValid = checkIfConnectionValid(sourceNode, targetNode, state.edges)
+
+      if (!isValid) {
+        console.warn('Invalid connection')
+        return
+      }
+
+      const updatedEdges = addEdge(connection, state.edges)
+      dispatch({ type: 'SET_EDGES', payload: updatedEdges })
     },
-    [state.edges],
+    [state.nodes, state.edges],
   )
 
-  const addNode = useCallback((type: NodeType, label: string) => {
+  const addNode = useCallback((type: NodeOrderType, label: string) => {
     const newNode: WorkflowNode = {
       id: uuidv4(),
+      type: getFlowNodeOrderType(type),
       position: { x: 100, y: 100 },
       data: { label, type },
     }

@@ -1,9 +1,8 @@
 'use client'
 
 import { Form, Input, Modal, Select } from 'antd'
-import { useState } from 'react'
 import { useWorkflowContext } from '@/context/WorkflowContext'
-import { NodeType } from '@/constants'
+import { NodeOrderType } from '@/constants'
 
 type Props = {
   open: boolean
@@ -11,31 +10,24 @@ type Props = {
 }
 
 const nodeTypeOptions = [
-  { label: 'Start', value: NodeType.Start },
-  { label: 'Middle', value: NodeType.Middle },
-  { label: 'End', value: NodeType.End },
+  { label: 'Start', value: NodeOrderType.Start },
+  { label: 'Middle', value: NodeOrderType.Middle },
+  { label: 'End', value: NodeOrderType.End },
 ]
 
 export const CreateNodeModal = ({ open, onCloseAction }: Props) => {
   const [form] = Form.useForm()
   const { addNode } = useWorkflowContext()
-  const [isFormValid, setIsFormValid] = useState(false)
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields()
-      addNode(values.type as NodeType, values.title)
+      addNode(values.type as NodeOrderType, values.title)
       form.resetFields()
       onCloseAction()
     } catch {
       // TODO: show validation errors if needed
     }
-  }
-
-  const handleFormChange = () => {
-    const hasErrors = form.getFieldsError().some(({ errors }) => errors.length > 0)
-    const hasTouched = form.isFieldsTouched(true)
-    setIsFormValid(!hasErrors && hasTouched)
   }
 
   return (
@@ -48,13 +40,11 @@ export const CreateNodeModal = ({ open, onCloseAction }: Props) => {
       }}
       afterClose={() => {
         form.resetFields()
-        setIsFormValid(false)
       }}
       onOk={handleSubmit}
       okText="Create"
-      okButtonProps={{ disabled: !isFormValid }}
     >
-      <Form layout="vertical" form={form} onValuesChange={handleFormChange}>
+      <Form layout="vertical" form={form}>
         <Form.Item
           name="type"
           label="Node Type"
