@@ -12,7 +12,7 @@ import {
   NodeChange,
 } from '@xyflow/react'
 import { v4 as uuidv4 } from 'uuid'
-import { NodeType } from '@/types'
+import { NodeType } from '@/constants'
 
 export interface WorkflowNode extends Node {
   data: {
@@ -50,18 +50,18 @@ const initialNodes: WorkflowNode[] = [
     id: '1',
     type: 'input',
     position: { x: 250, y: 0 },
-    data: { label: 'Start Node', type: 'start' },
+    data: { label: 'Start Node', type: NodeType.Start },
   },
   {
     id: '2',
     position: { x: 250, y: 150 },
-    data: { label: 'Middle Node', type: 'middle' },
+    data: { label: 'Middle Node', type: NodeType.Middle },
   },
   {
     id: '3',
     type: 'output',
     position: { x: 250, y: 300 },
-    data: { label: 'End Node', type: 'end' },
+    data: { label: 'End Node', type: NodeType.End },
   },
 ]
 
