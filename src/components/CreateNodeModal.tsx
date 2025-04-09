@@ -2,32 +2,22 @@
 
 import { Form, Input, Modal, Select } from 'antd'
 import { useWorkflowContext } from '@/context/WorkflowContext'
-import { NodeOrderType } from '@/constants'
+import { NodeOrderType, typeOptions } from '@/constants'
 
 type Props = {
   open: boolean
   onCloseAction: () => void
 }
 
-const nodeTypeOptions = [
-  { label: 'Start', value: NodeOrderType.Start },
-  { label: 'Middle', value: NodeOrderType.Middle },
-  { label: 'End', value: NodeOrderType.End },
-]
-
 export const CreateNodeModal = ({ open, onCloseAction }: Props) => {
   const [form] = Form.useForm()
   const { addNode } = useWorkflowContext()
 
   const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields()
-      addNode(values.type as NodeOrderType, values.title)
-      form.resetFields()
-      onCloseAction()
-    } catch {
-      // TODO: show validation errors if needed
-    }
+    const values = await form.validateFields()
+    addNode(values.type as NodeOrderType, values.title)
+    form.resetFields()
+    onCloseAction()
   }
 
   return (
@@ -50,7 +40,7 @@ export const CreateNodeModal = ({ open, onCloseAction }: Props) => {
           label="Node Type"
           rules={[{ required: true, message: 'Please select a type' }]}
         >
-          <Select options={nodeTypeOptions} />
+          <Select options={typeOptions} />
         </Form.Item>
 
         <Form.Item

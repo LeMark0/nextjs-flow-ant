@@ -15,6 +15,15 @@ import { v4 as uuidv4 } from 'uuid'
 import { NodeOrderType, NodeType } from '@/constants'
 import { checkIfConnectionValid } from './helpers'
 
+export enum ActionType {
+  SetNodes = 'SET_NODES',
+  SetEdges = 'SET_EDGES',
+  AddNode = 'ADD_NODE',
+  UpdateNode = 'UPDATE_NODE',
+  AddEdge = 'ADD_EDGE',
+  SetSelectedNode = 'SET_SELECTED_NODE',
+}
+
 export interface WorkflowNode extends Node {
   data: {
     label: string
@@ -29,40 +38,33 @@ type WorkflowState = {
 }
 
 type Action =
-  | { type: 'SET_NODES'; payload: WorkflowNode[] }
-  | { type: 'SET_EDGES'; payload: Edge[] }
-  | { type: 'ADD_NODE'; payload: WorkflowNode }
+  | { type: ActionType.SetNodes; payload: WorkflowNode[] }
+  | { type: ActionType.SetEdges; payload: Edge[] }
+  | { type: ActionType.AddNode; payload: WorkflowNode }
   | {
-      type: 'UPDATE_NODE'
+      type: ActionType.UpdateNode
       payload: { id: string; updates: Partial<WorkflowNode['data']> }
     }
-  | { type: 'ADD_EDGE'; payload: Edge }
-  | { type: 'SET_SELECTED_NODE'; payload: string | null }
-
-export interface WorkflowNode extends Node {
-  data: {
-    label: string
-    type: NodeOrderType
-  }
-}
+  | { type: ActionType.AddEdge; payload: Edge }
+  | { type: ActionType.SetSelectedNode; payload: string | null }
 
 const initialNodes: WorkflowNode[] = [
   {
     id: '1',
     type: 'input',
     position: { x: 250, y: 0 },
-    data: { label: 'Start Node', type: NodeOrderType.Start },
+    data: { label: 'Input', type: NodeOrderType.Start },
   },
   {
     id: '2',
     position: { x: 250, y: 150 },
-    data: { label: 'Middle Node', type: NodeOrderType.Middle },
+    data: { label: 'Process', type: NodeOrderType.Middle },
   },
   {
     id: '3',
     type: 'output',
     position: { x: 250, y: 300 },
-    data: { label: 'End Node', type: NodeOrderType.End },
+    data: { label: 'Output', type: NodeOrderType.End },
   },
 ]
 
@@ -79,13 +81,13 @@ const initialState: WorkflowState = {
 
 function reducer(state: WorkflowState, action: Action): WorkflowState {
   switch (action.type) {
-    case 'SET_NODES':
+    case ActionType.SetNodes:
       return { ...state, nodes: action.payload }
-    case 'SET_EDGES':
+    case ActionType.SetEdges:
       return { ...state, edges: action.payload }
-    case 'ADD_NODE':
+    case ActionType.AddNode:
       return { ...state, nodes: [...state.nodes, action.payload] }
-    case 'UPDATE_NODE':
+    case ActionType.UpdateNode:
       return {
         ...state,
         nodes: state.nodes.map((n) =>
@@ -94,9 +96,9 @@ function reducer(state: WorkflowState, action: Action): WorkflowState {
             : n,
         ),
       }
-    case 'ADD_EDGE':
+    case ActionType.AddEdge:
       return { ...state, edges: [...state.edges, action.payload] }
-    case 'SET_SELECTED_NODE':
+    case ActionType.SetSelectedNode:
       return { ...state, selectedNodeId: action.payload }
     default:
       return state
@@ -115,20 +117,12 @@ function getFlowNodeOrderType(order: NodeOrderType): NodeType | undefined {
 
 // This hook is not exported and placed here to prevent improper usage outside of context
 const useWorkflow = () => {
-  const [state, dispatch] = useReducer(
-    reducer,
-    {
-      nodes: [],
-      edges: [],
-      selectedNodeId: null,
-    },
-    () => initialState,
-  )
+  const [state, dispatch] = useReducer(reducer, initialState)
 
   const setNodes = useCallback(
     (changes: NodeChange[]) => {
       dispatch({
-        type: 'SET_NODES',
+        type: ActionType.SetNodes,
         payload: applyNodeChanges(changes, state.nodes) as WorkflowNode[],
       })
     },
@@ -138,7 +132,7 @@ const useWorkflow = () => {
   const setEdges = useCallback(
     (changes: EdgeChange[]) => {
       dispatch({
-        type: 'SET_EDGES',
+        type: ActionType.SetEdges,
         payload: applyEdgeChanges(changes, state.edges),
       })
     },
@@ -162,7 +156,7 @@ const useWorkflow = () => {
       }
 
       const updatedEdges = addEdge({ ...connection, animated: true }, state.edges)
-      dispatch({ type: 'SET_EDGES', payload: updatedEdges })
+      dispatch({ type: ActionType.SetEdges, payload: updatedEdges })
     },
     [state.nodes, state.edges],
   )
@@ -174,15 +168,15 @@ const useWorkflow = () => {
       position: { x: 100, y: 100 },
       data: { label, type },
     }
-    dispatch({ type: 'ADD_NODE', payload: newNode })
+    dispatch({ type: ActionType.AddNode, payload: newNode })
   }, [])
 
   const updateNode = useCallback((id: string, updates: Partial<WorkflowNode['data']>) => {
-    dispatch({ type: 'UPDATE_NODE', payload: { id, updates } })
+    dispatch({ type: ActionType.UpdateNode, payload: { id, updates } })
   }, [])
 
   const selectNode = useCallback((id: string | null) => {
-    dispatch({ type: 'SET_SELECTED_NODE', payload: id })
+    dispatch({ type: ActionType.SetSelectedNode, payload: id })
   }, [])
 
   return {

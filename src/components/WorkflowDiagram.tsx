@@ -9,6 +9,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import { useWorkflowContext } from '@/context/WorkflowContext'
 import { CreateNodeModal } from './CreateNodeModal'
 import { EditableNode } from './EditableNode'
+import { EditNodeDrawer } from './EditNodeDrawer'
 
 const nodeTypes = {
   input: EditableNode,
@@ -26,7 +27,7 @@ export const WorkflowDiagram = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}
+          style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}
           onClick={() => setIsModalOpen(true)}
         >
           Create Node
@@ -45,6 +46,7 @@ export const WorkflowDiagram = () => {
         </ReactFlow>
       </div>
       <CreateNodeModal open={isModalOpen} onCloseAction={() => setIsModalOpen(false)} />
+      <EditNodeDrawer />
     </>
   )
 }

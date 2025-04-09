@@ -8,3 +8,8 @@ export enum NodeType {
   Input = 'input',
   Output = 'output',
 }
+
+export const typeOptions = Object.entries(NodeOrderType).map(([key, value]) => ({
+  label: key,
+  value,
+}))
