@@ -8,17 +8,17 @@ import { PlusOutlined } from '@ant-design/icons'
 
 import { useWorkflowContext } from '@/context/WorkflowContext'
 import { CreateNodeModal } from './CreateNodeModal'
+import { EditableNode } from './EditableNode'
 
-// TODO: for start and end nodes remove attach point after connecting
-// TODO: make sure that middle node can only connect to one start and one end
-// TODO: make sure that start/end can only connect with middle
+const nodeTypes = {
+  input: EditableNode,
+  output: EditableNode,
+  default: EditableNode,
+}
 
 export const WorkflowDiagram = () => {
   const { nodes, edges, setNodes, setEdges, connectEdge } = useWorkflowContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  console.log('nodes: ', nodes)
-  // console.log('edges: ', edges)
 
   return (
     <>
@@ -32,6 +32,7 @@ export const WorkflowDiagram = () => {
           Create Node
         </Button>
         <ReactFlow
+          nodeTypes={nodeTypes}
           nodes={nodes}
           edges={edges}
           onNodesChange={setNodes}

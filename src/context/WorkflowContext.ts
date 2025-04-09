@@ -67,8 +67,8 @@ const initialNodes: WorkflowNode[] = [
 ]
 
 const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2' },
-  { id: 'e2-3', source: '2', target: '3' },
+  { id: 'e1-2', source: '1', target: '2', animated: true },
+  { id: 'e2-3', source: '2', target: '3', animated: true },
 ]
 
 const initialState: WorkflowState = {
@@ -161,7 +161,7 @@ const useWorkflow = () => {
         return
       }
 
-      const updatedEdges = addEdge(connection, state.edges)
+      const updatedEdges = addEdge({ ...connection, animated: true }, state.edges)
       dispatch({ type: 'SET_EDGES', payload: updatedEdges })
     },
     [state.nodes, state.edges],
