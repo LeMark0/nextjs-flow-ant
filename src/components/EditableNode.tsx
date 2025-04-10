@@ -10,14 +10,18 @@ export const EditableNode = ({ id, data }: NodeProps<EditableWorkflowNode>) => {
 
   return (
     <div className="flex align-center items-center justify-between text-gray-700">
-      {type !== NodeOrderType.Start && <Handle type="target" position={Position.Top} />}
+      {type !== NodeOrderType.Start && (
+        <Handle type="target" position={Position.Top} role="handle" />
+      )}
 
       <div className="text-xs truncate">{data.label}</div>
       <Button size="small" className="text-xs" onClick={() => selectNode(id)}>
         Edit
       </Button>
 
-      {type !== NodeOrderType.End && <Handle type="source" position={Position.Bottom} />}
+      {type !== NodeOrderType.End && (
+        <Handle type="source" position={Position.Bottom} role="handle" />
+      )}
     </div>
   )
 }
