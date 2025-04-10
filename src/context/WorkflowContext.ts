@@ -83,23 +83,40 @@ function reducer(state: WorkflowState, action: Action): WorkflowState {
   switch (action.type) {
     case ActionType.SetNodes:
       return { ...state, nodes: action.payload }
+
     case ActionType.SetEdges:
       return { ...state, edges: action.payload }
+
     case ActionType.AddNode:
       return { ...state, nodes: [...state.nodes, action.payload] }
+
     case ActionType.UpdateNode:
       return {
         ...state,
-        nodes: state.nodes.map((n) =>
-          n.id === action.payload.id
-            ? { ...n, data: { ...n.data, ...action.payload.updates } }
-            : n,
-        ),
+        nodes: state.nodes.map((n) => {
+          if (n.id !== action.payload.id) return n
+
+          const updatedData = { ...n.data, ...action.payload.updates }
+
+          const newType =
+            action.payload.updates.type !== undefined
+              ? getFlowNodeOrderType(action.payload.updates.type)
+              : n.type
+
+          return {
+            ...n,
+            type: newType,
+            data: updatedData,
+          }
+        }),
       }
+
     case ActionType.AddEdge:
       return { ...state, edges: [...state.edges, action.payload] }
+
     case ActionType.SetSelectedNode:
       return { ...state, selectedNodeId: action.payload }
+
     default:
       return state
   }
