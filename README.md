@@ -1,11 +1,10 @@
-
 # Workflow Editor
 
 A workflow diagram builder built with **Next.js**, **TypeScript**, **React Flow (@xyflow/react)**, and **Ant Design**. Users can create, edit, and connect nodes of three types: Start, Middle, and End — following a strict logical structure.
 
 ## 🚀 Live Demo
 
-[Live demo is here](https://nextjs-flow-ant.vercel.app/)
+[Live demo](https://nextjs-flow-ant.vercel.app/)
 
 ---
 
@@ -33,19 +32,15 @@ src/
 │   ├── EditNodeDrawer.tsx       # Drawer to edit selected node
 │   └── EditableNode.tsx         # Custom render logic for nodes
 ├── context/
-│   └── WorkflowContext.tsx      # Flow state context using useReducer
-├── constants/
-│   └── index.ts                 # Enums for NodeType and NodeOrderType
+│   ├── WorkflowContext.tsx      # Flow state context using useReducer
+│   └── helpers.ts               # Edge connection validation logic
+├── constants.ts                 # Enums and constants
 ├── lib/
 │   └── buildContext.ts          # Generic hook/context builder
-├── utils/
-│   └── connectionRules.ts       # Edge connection validation logic
-├── types/
-│   └── index.ts                 # Custom shared types
-├── pages/
-│   └── index.tsx                # Next.js page with <WorkflowDiagram />
+├── types.ts                     # Custom shared types
+├── app/
+│   └── page.tsx                 # Next.js page with <WorkflowDiagram />
 ```
-
 
 ## ▶️ Scripts
 
@@ -68,21 +63,19 @@ yarn test
 
 ## Assumptions & Design Decisions
 
-•  **Node types are enforced by logical order** (NodeOrderType) and mapped to flow roles (NodeType) for correct handle behavior
+• **Node types are enforced by logical order** (NodeOrderType) and mapped to flow roles (NodeType) for correct handle behavior
 
 • **React Flow node type (type) is synced automatically** in reducer during updates
 
-•  **Validation for connections** is split into two functions:
+• **Validation for connections** is split into two functions:
 
-•  `checkIfConnectionOrderValid()` — ensures flow is Start → Middle → End
+• `checkIfConnectionOrderValid()` — ensures flow is Start → Middle → End
 
-•  `checkIfConnectionNumberValid()` — ensures only one connection per rule
+• `checkIfConnectionNumberValid()` — ensures only one connection per rule
 
-•  **Type change is allowed only before connections are made**, as changing it after could lead to invalid state or missing handles
+• **Type change is allowed only before connections are made**, as changing it after could lead to invalid state or missing handles
 
-•  **Custom node rendering** uses EditableNode, which shows handles based on NodeOrderType
-
-
+• **Custom node rendering** uses EditableNode, which shows handles based on NodeOrderType
 
 ## 🧰 Utilities
 
@@ -93,3 +86,4 @@ Instead of repeating boilerplate, we declare context like this:
 ```ts
 export const { ContextProvider: WorkflowProvider, useContext: useWorkflowContext } =
   buildContext(useWorkflow)
+```
